@@ -1,0 +1,75 @@
+version: "3"
+services:
+  ivanovai-db:
+    image: postgres:latest
+    container_name: ivanovai-netology-db
+    ports:
+    - 5432:5432
+    volumes:
+    - /opt/postgres/pg_data:/var/lib/postgresql/data/pgdata
+    environment:
+      POSTGRES_PASSWORD: ivanovai12!3!!
+      POSTGRES_DB: netology_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      netology-lesson:
+        ipv4_address: 172.22.0.2
+        aliases:
+        - netology-db
+    restart: always
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ivanovai-pgadmin
+    ports:
+    - 61231:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ivanovai@ilove-pelmeni.com
+      PGADMIN_DEFAULT_PASSWORD: 1234
+    networks:
+      netology-lesson:
+        ipv4_address: 172.22.0.3
+        aliases:
+        - netology-pgadmin
+    restart: always
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql
+    links:
+      - ivanovai-db
+    container_name: ivanovai-netology-zabbix
+    environment:
+      DB_SERVER_HOST: '172.22.0.2'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "10051:10051"
+    networks:
+      netology-lesson:
+        ipv4_address: 172.22.0.4
+    restart: always
+  zabbix_wgui:
+    image: zabbix/zabbix-web-apache-pgsql
+    links:
+      - ivanovai-db
+      - zabbix-server
+    container_name: ivanovai-netology_zabbix_frontend
+    environment:
+      DB_SERVER_HOST: '172.22.0.2'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 123
+      ZBX_SERVER_HOST: "zabbix_wgui"
+      PHP_TZ: "Europe/Moscow"
+    ports:
+      - "80:8080"
+      - "443:8443"
+    networks:
+      netology-lesson:
+        ipv4_address: 172.22.0.5
+    restart: always
+
+
+networks:
+    netology-lesson:
+      driver: bridge
+      ipam:
+        config:
+          - subnet: 172.22.0.0/24
