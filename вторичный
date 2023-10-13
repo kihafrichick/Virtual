@@ -1,0 +1,40 @@
+version: "3"
+services:
+  ivanovai-db:
+    image: postgres:latest
+    container_name: ivanovai-netology-db
+    ports:
+    - 5432:5432
+    volumes:
+    - /opt/postgres/pg_data:/var/lib/postgresql/data/pgdata
+    environment:
+      POSTGRES_PASSWORD: ivanovai12!3!!
+      POSTGRES_DB: netology_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      netology-lesson:
+        ipv4_address: 172.22.0.2
+        aliases:
+        - netology-db
+    restart: always
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ivanovai-pgadmin
+    ports:
+    - 61231:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ivanovai@ilove-pelmeni.com
+      PGADMIN_DEFAULT_PASSWORD: 1234
+    networks:
+      netology-lesson:
+        ipv4_address: 172.22.0.3
+        aliases:
+        - netology-pgadmin
+    restart: always
+
+networks:
+    netology-lesson:
+      driver: bridge
+      ipam:
+        config:
+          - subnet: 172.22.0.0/24
